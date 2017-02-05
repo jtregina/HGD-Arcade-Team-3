@@ -1,0 +1,50 @@
+import arcadia.*;
+
+import java.awt.*;
+
+public class BECMain extends Game {
+   
+	private final Color[] colors;
+    private Color color;
+
+    public BECMain() {
+        colors = new Color[] {
+            Color.BLUE, 
+            Color.CYAN, 
+            Color.DARK_GRAY, 
+            Color.GRAY, 
+            Color.GREEN,
+            Color.LIGHT_GRAY,
+            Color.MAGENTA,
+            Color.ORANGE,
+            Color.PINK,
+            Color.RED,
+            Color.YELLOW
+        };
+        reset();    
+    }
+    
+    public void reset() {
+        color = colors[(int)(Math.random() * colors.length)];
+    }
+    
+    public Image banner() { 
+        return null;
+    }
+
+    public static void main(String[] args) {
+        Arcadia.display(new Arcadia(new BECMain(), new ));
+    }
+
+	@Override
+	public Image cover() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void tick(Graphics2D graphics, Input input, Sound sound) {
+	    graphics.setColor(color);
+        graphics.fillRect(0, 0, WIDTH, HEIGHT);
+	}
+}
