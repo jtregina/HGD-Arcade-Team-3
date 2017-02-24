@@ -146,7 +146,7 @@ public class Arcadia extends JPanel implements KeyListener,Runnable {
 
 		new Thread(arcadia).start();
 
-		JFrame frame = new JFrame("Arcadia");
+		JFrame frame = new JFrame("Bubble Explosion Chronicles");
 		frame.add(arcadia);
 		frame.addKeyListener(arcadia);
 		frame.setResizable(false);
