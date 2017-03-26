@@ -17,10 +17,10 @@ public class BECMain extends Game {
 	private Nuke nuke;
 	private Nuke nextNuke;
 	private Bubble [] bubbles;
-	private int [][] bubCollis;
 	private int numBubbles;
 	private int nDX, nDY, nX, nY;
 	private boolean fire;
+	int ang = 90;
 
 	public BECMain() {
 		try {
@@ -30,7 +30,7 @@ public class BECMain extends Game {
 			System.out.println("BG/Nuke Dukem Image Error");
 		}
 
-		numBubbles = 20;
+		numBubbles = 19;
 		bubbles = new Bubble [numBubbles];
 
 		for (int i = 0; i < numBubbles; i++) {
@@ -196,6 +196,8 @@ public class BECMain extends Game {
 
 	@Override
 	public void tick(Graphics2D graphics, Input input, Sound sound) {
+		
+		
 		graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
 
 		graphics.setColor(Color.BLACK);
@@ -205,8 +207,7 @@ public class BECMain extends Game {
 		graphics.drawImage(nukeDukem, nDX, nDY, 120, 160, null);
 
 		for (int i = 1; i <= numBubbles; i++) {
-			graphics.drawImage(bubbles[i - 1].getImage(), bubbles[i-1].getXPos(), bubbles[i-1].getYPos(), 70, 73, null);
-			//graphics.drawRect(bubbles[i-1].getXPos() + 5, bubbles[i-1].getYPos() + 5, 58, 58);
+			graphics.drawImage(bubbles[i - 1].getImage(), bubbles[i - 1].getXPos(), bubbles[i-1].getYPos(), 70, 73, null);
 		}
 
 		if (nDX > 0) if (input.pressed(Button.L)) nDX -= 4;
@@ -219,37 +220,49 @@ public class BECMain extends Game {
 				fire = true;
 			}
 		}
+		
+		for (int k = 0; k < bubbles[bubbles.length - 1].getColl().length; k++) {
+			graphics.drawOval(bubbles[bubbles.length - 1].getColl()[k][0], bubbles[bubbles.length - 1].getColl()[k][1], 1, 1);
+		}
 
+		graphics.drawOval(nX + 35, nY + 96, 1, 1);
+		
 		if (fire) {
 			graphics.drawImage(nuke.getImage(), nX, nY, 70, 96, null);
 
 			for (int i = 0; i < bubbles.length; i++) {
 				for (int j = 0; j < bubbles[i].getColl().length; j++) {
-					//System.out.println(bubbles[i].getColl()[j][1]);
-					if ((nX + 70) == bubbles[i].getColl()[j][0] && (nY + 96) == bubbles[i].getColl()[j][1]) {
-						fire = false;
-						
-						numBubbles++;
-						Bubble [] n = new Bubble[numBubbles];
-						
-						for (int k = 0; k < bubbles.length; k++) {
-							n[k] = bubbles[k];
+
+					for (int k = 0; k < 10; k++) {
+						if (((nX + 35) == bubbles[i].getColl()[j][0]) && ((nY + k + 96) == bubbles[i].getColl()[j][1])) {
+							fire = false;
+							
+							numBubbles++;
+							Bubble [] n = new Bubble[numBubbles];
+							
+							for (int l = 0; l < bubbles.length; l++) {
+								n[l] = bubbles[l];
+							}
+							
+							bubbles = n;
+							bubbles[numBubbles - 1] = new Bubble();
+							
+							bubbles[numBubbles - 1].setImage(nuke.getBubImage());
+									
+							if ((bubbles[i].getColl()[j][0] - (bubbles[i].getXPos() - 5)) < 29) {
+								bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
+							} else {
+								bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() + 30, bubbles[i].getYPos() - 52);
+							}
+
+							nY = nDY;
 						}
-						
-						bubbles = n;
-						bubbles[numBubbles - 1] = new Bubble();
-						
-						bubbles[numBubbles - 1].setImage(nuke.getBubImage());
-								
-						bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
-
-						nY = nDY;
-
 					}
 				}
 			}
-
-			nY += 1;
+			
+			nX += (int)(5 * Math.cos(ang));
+			nY += (int)(5 * Math.cos(ang));
 		}
 
 		if (nY > 800) {
