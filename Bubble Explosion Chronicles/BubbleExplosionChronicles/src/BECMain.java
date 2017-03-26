@@ -1,9 +1,10 @@
-import static arcadia.Game.HEIGHT;
-import static arcadia.Game.WIDTH;
 import arcadia.*;
 import arcadia.Button;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Math;
@@ -14,18 +15,26 @@ public class BECMain extends Game {
 
 	private Image bg;
 	private Image nukeDukem;
+	private BufferedImage arrow;
 	private Nuke nuke;
 	private Nuke nextNuke;
 	private Bubble [] bubbles;
 	private int numBubbles;
-	private int nDX, nDY, nX, nY;
+	private int nDX, nDY, nX, nY, aX, aY;
 	private boolean fire;
-	int ang = 90;
+	private double ang = 90;
+	private double arrowAng = 90;
+	private double locationX = 24;
+	private double locationY = 30;
+	private double rotationRequired = Math.toRadians(arrowAng - 90);
+	AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+	AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
 
 	public BECMain() {
 		try {
 			bg = ImageIO.read(new File("src/images/backgrounds/random.png"));
 			nukeDukem = ImageIO.read(new File("src/images/NukeDukemSprite.png"));
+			arrow = ImageIO.read(new File("src/images/arrow2.png"));
 		} catch (IOException e) {
 			System.out.println("BG/Nuke Dukem Image Error");
 		}
@@ -92,6 +101,8 @@ public class BECMain extends Game {
 		nDY = 20;
 		nX = nDX;
 		nY = nDY;
+		aX = nDX;
+		aY = nDY + 175;
 
 		randNuke();
 
@@ -197,22 +208,42 @@ public class BECMain extends Game {
 	@Override
 	public void tick(Graphics2D graphics, Input input, Sound sound) {
 		
+		// TODO: Load level
 		
+		
+		// Draw the background
 		graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
 
+		// Display next Nuke
 		graphics.setColor(Color.BLACK);
 		graphics.fillRoundRect(10, 10, 80, 106, 20, 30);
 		graphics.drawImage(nextNuke.getImage(), 15, 10, 70, 96, null);
-
+		
+		rotationRequired = Math.toRadians(arrowAng - 90);
+		tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
+		op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+		
+		// Display arrow
+		graphics.drawImage(op.filter(arrow, null), aX, aY, null);
+	
+		// Display main character sprite
 		graphics.drawImage(nukeDukem, nDX, nDY, 120, 160, null);
 
+		// Draw pre-generated bubbles determined by level
 		for (int i = 1; i <= numBubbles; i++) {
 			graphics.drawImage(bubbles[i - 1].getImage(), bubbles[i - 1].getXPos(), bubbles[i-1].getYPos(), 70, 73, null);
 		}
 
-		if (nDX > 0) if (input.pressed(Button.L)) nDX -= 4;
-		if (nDX < 480) if (input.pressed(Button.R)) nDX += 4;
-		if (input.pressed(Button.A)) {
+		// Control main character
+		if (nDX > 0) if (input.pressed(Button.L)) {
+			nDX -= 4;
+			aX -= 4;
+		}
+		if (nDX < 480) if (input.pressed(Button.R)) {
+			nDX += 4;
+			aX += 4;
+		}
+		if (input.pressed(Button.A)) {	// Fire nuke
 			if (fire == false) {
 				nuke = nextNuke;
 				randNuke();
@@ -221,15 +252,28 @@ public class BECMain extends Game {
 			}
 		}
 		
-		for (int k = 0; k < bubbles[bubbles.length - 1].getColl().length; k++) {
-			graphics.drawOval(bubbles[bubbles.length - 1].getColl()[k][0], bubbles[bubbles.length - 1].getColl()[k][1], 1, 1);
+		// Control direction to fire
+		if (!fire) {
+			ang = arrowAng;
 		}
-
-		graphics.drawOval(nX + 35, nY + 96, 1, 1);
 		
+		// Control arrow
+		if (arrowAng <= 135) {
+			if (input.pressed(Button.B)) {
+				arrowAng += 5;
+			}
+		}
+		if (arrowAng >= 45) {
+			if (input.pressed(Button.C)) {
+				arrowAng -= 5;
+			}
+		}
+		
+		// Nuke has been fired
 		if (fire) {
 			graphics.drawImage(nuke.getImage(), nX, nY, 70, 96, null);
 
+			// Check if nuke collides with bubble
 			for (int i = 0; i < bubbles.length; i++) {
 				for (int j = 0; j < bubbles[i].getColl().length; j++) {
 
@@ -261,13 +305,21 @@ public class BECMain extends Game {
 				}
 			}
 			
-			nX += (int)(5 * Math.cos(ang));
-			nY += (int)(5 * Math.cos(ang));
+			// Update nuke position
+			nX += (int)(5 * Math.cos(ang * Math.PI / 180));
+			nY += (int)(5 * Math.sin(ang * Math.PI / 180));
 		}
 
+		// Check if nuke flies of screen
 		if (nY > 800) {
 			nY = nDY;
 			fire = false;
+		}
+		
+		if (nX <= 0) {
+			ang = ang - 90;
+		} else if (nX >= 515) {
+			ang = ang + 90;
 		}
 	}
 }
