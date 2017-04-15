@@ -3,22 +3,31 @@ import java.awt.Image;
 
 public class Nuke {
 
-	Image type;
+	Image iType;
 	Image bubbleType;
+	int type;
 	int xPos;
 	int yPos;
 	
 	public void setImage(Image i, Image j) {
-		type = i;
+		iType = i;
 		bubbleType = j;
 	}
 	
 	public Image getImage() {
-		return type;
+		return iType;
 	}
 	
 	public Image getBubImage() {
 		return bubbleType;
+	}
+	
+	public void setType(int t) {
+		type = t;
+	}
+	
+	public int getType() {
+		return type;
 	}
 	
 	public void setPos(int x, int y) {

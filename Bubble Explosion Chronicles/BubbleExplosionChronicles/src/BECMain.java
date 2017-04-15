@@ -15,6 +15,7 @@ public class BECMain extends Game {
 
 	private Image bg;
 	private Image nukeDukem;
+	private Parser p;
 	private BufferedImage arrow;
 	private Nuke nuke;
 	private Nuke nextNuke;
@@ -22,6 +23,8 @@ public class BECMain extends Game {
 	private int numBubbles;
 	private int nDX, nDY, nX, nY, aX, aY;
 	private boolean fire;
+	private int levelCounter = 2;
+	private String levelName;
 	private double ang = 90;
 	private double arrowAng = 90;
 	private double locationX = 24;
@@ -34,69 +37,23 @@ public class BECMain extends Game {
 		try {
 			bg = ImageIO.read(new File("src/images/backgrounds/random.png"));
 			nukeDukem = ImageIO.read(new File("src/images/NukeDukemSprite.png"));
-			arrow = ImageIO.read(new File("src/images/arrow2.png"));
+			arrow = ImageIO.read(new File("src/images/arrow.png"));
 		} catch (IOException e) {
 			System.out.println("BG/Nuke Dukem Image Error");
 		}
+		
+		p = new Parser();
+	
+		levelName = "level" + levelCounter;
+		
+		int [] level = p.getLevel(levelName);
 
-		numBubbles = 19;
-		bubbles = new Bubble [numBubbles];
+		generateLevel(level, level.length);
 
-		for (int i = 0; i < numBubbles; i++) {
-			int rand = (int)(Math.random() * 5) + 1;	// Generates random number between 1 and 5
+		reset();
+	}
 
-			switch (rand) {
-			case 1:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			case 2:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			case 3:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubblePentagon.png")));
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			case 4:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleSquare.png")));
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			case 5:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleTriangle.png")));
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			default:
-				try {
-					bubbles[i] = new Bubble();
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));	// Diamond is the default
-				} catch (IOException e) {
-					System.out.println("Bubble Image Error");
-				}
-				break;
-			}
-		}
-
+	public void reset() {
 		nDX = 240;
 		nDY = 20;
 		nX = nDX;
@@ -107,12 +64,6 @@ public class BECMain extends Game {
 		randNuke();
 
 		setBubPositions();
-
-		reset();    
-	}
-
-	public void reset() {
-
 	}
 
 	public Image banner() { 
@@ -128,6 +79,74 @@ public class BECMain extends Game {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void generateLevel(int [] level, int n) {
+		
+		numBubbles = n;
+		bubbles = new Bubble [numBubbles];
+		
+		int type;
+		
+		for (int i = 0; i < numBubbles; i++) {
+			type = level[i];
+			
+			bubbles[i] = new Bubble();
+			bubbles[i].setType(type);
+			
+			//	Check adjacent bubbles and create a chain
+			
+			
+			switch (type) {
+			case 1:
+				try {
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			case 2:
+				try {
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			case 3:
+				try {
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubblePentagon.png")));
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			case 4:
+				try {
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleSquare.png")));
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			case 5:
+				try {
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleTriangle.png")));
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			case 6:
+				bubbles[i].setType(0);
+				break;
+			default:
+				try {
+					bubbles[i] = new Bubble();
+					bubbles[i].setType(1);
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));	// Diamond is the default
+				} catch (IOException e) {
+					System.out.println("Bubble Image Error");
+				}
+				break;
+			}
+		}
+	}
 
 	public void setBubPositions() {
 
@@ -136,7 +155,10 @@ public class BECMain extends Game {
 		int temp = 10;
 
 		for (int i = 1; i <= numBubbles; i++) {
-			bubbles[i - 1].setPos(bX, bY);
+			if (bubbles[i - 1].getType() != 0) {
+				bubbles[i - 1].setPos(bX, bY);
+			}
+			
 			bX += 60;
 
 			if (i % 19 == 0) {
@@ -152,11 +174,13 @@ public class BECMain extends Game {
 
 	public void randNuke() {
 		int rand = (int)(Math.random() * 5) + 1;	// Generates random number between 1 and 5
-
+		
+		nextNuke = new Nuke();
+		nextNuke.setType(rand);
+		
 		switch (rand) {
 		case 1:
 			try {
-				nextNuke = new Nuke();
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeDiamond.png")), ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -164,7 +188,6 @@ public class BECMain extends Game {
 			break;
 		case 2:
 			try {
-				nextNuke = new Nuke();
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeLightning.png")), ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -172,7 +195,6 @@ public class BECMain extends Game {
 			break;
 		case 3:
 			try {
-				nextNuke = new Nuke();
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukePentagon.png")), ImageIO.read(new File("src/images/bubbles/bubblePentagon.png")));
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -180,7 +202,6 @@ public class BECMain extends Game {
 			break;
 		case 4:
 			try {
-				nextNuke = new Nuke();
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeSquare.png")), ImageIO.read(new File("src/images/bubbles/bubbleSquare.png")));
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -188,7 +209,6 @@ public class BECMain extends Game {
 			break;
 		case 5:
 			try {
-				nextNuke = new Nuke();
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeTriangle.png")),ImageIO.read(new File("src/images/bubbles/bubbleTriangle.png")));
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -196,7 +216,7 @@ public class BECMain extends Game {
 			break;
 		default:
 			try {
-				nextNuke = new Nuke();
+				nextNuke.setType(1);
 				nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeDiamond.png")), ImageIO.read(new File("src/images/bubbles/bubbleDiamond.png")));	// Diamond is the default
 			} catch (IOException e) {
 				System.out.println("Bubble Image Error");
@@ -207,9 +227,6 @@ public class BECMain extends Game {
 
 	@Override
 	public void tick(Graphics2D graphics, Input input, Sound sound) {
-		
-		// TODO: Load level
-		
 		
 		// Draw the background
 		graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
@@ -231,6 +248,10 @@ public class BECMain extends Game {
 
 		// Draw pre-generated bubbles determined by level
 		for (int i = 1; i <= numBubbles; i++) {
+			if (bubbles[i - 1].getType() == 0) {
+				continue;
+			}
+			
 			graphics.drawImage(bubbles[i - 1].getImage(), bubbles[i - 1].getXPos(), bubbles[i-1].getYPos(), 70, 73, null);
 		}
 
@@ -275,31 +296,46 @@ public class BECMain extends Game {
 
 			// Check if nuke collides with bubble
 			for (int i = 0; i < bubbles.length; i++) {
-				for (int j = 0; j < bubbles[i].getColl().length; j++) {
-
-					for (int k = 0; k < 10; k++) {
-						if (((nX + 35) == bubbles[i].getColl()[j][0]) && ((nY + k + 96) == bubbles[i].getColl()[j][1])) {
-							fire = false;
-							
-							numBubbles++;
-							Bubble [] n = new Bubble[numBubbles];
-							
-							for (int l = 0; l < bubbles.length; l++) {
-								n[l] = bubbles[l];
+				if (bubbles[i].getType() != 0) {
+					for (int j = 0; j < bubbles[i].getColl().length; j++) {
+	
+						for (int k = 0; k < 10; k++) {
+							if (((nX + 35) == bubbles[i].getColl()[j][0]) && ((nY + k + 96) == bubbles[i].getColl()[j][1])) {
+								fire = false;
+								
+								numBubbles++;
+								Bubble [] n = new Bubble[numBubbles];
+								
+								for (int l = 0; l < bubbles.length; l++) {
+									n[l] = bubbles[l];
+								}
+								
+								bubbles = n;
+								bubbles[numBubbles - 1] = new Bubble();
+								bubbles[numBubbles - 1].setType(nuke.getType());
+															
+								bubbles[numBubbles - 1].setImage(nuke.getBubImage());
+										
+								int actualPos;
+								
+								if ((bubbles[i].getColl()[j][0] - (bubbles[i].getXPos() - 5)) < 29) {
+									bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
+									actualPos = i + 9;
+								} else {
+									bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() + 30, bubbles[i].getYPos() - 52);
+									actualPos = i + 10;
+								}
+								
+								int adjCounter = 0;
+								
+								adjCounter = checkBubbleChain(actualPos, adjCounter);
+								
+								if (adjCounter > 2) {
+									//clearBubbles();
+								}
+								
+								nY = nDY;
 							}
-							
-							bubbles = n;
-							bubbles[numBubbles - 1] = new Bubble();
-							
-							bubbles[numBubbles - 1].setImage(nuke.getBubImage());
-									
-							if ((bubbles[i].getColl()[j][0] - (bubbles[i].getXPos() - 5)) < 29) {
-								bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
-							} else {
-								bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() + 30, bubbles[i].getYPos() - 52);
-							}
-
-							nY = nDY;
 						}
 					}
 				}
@@ -321,5 +357,31 @@ public class BECMain extends Game {
 		} else if (nX >= 515) {
 			ang = ang + 90;
 		}
+	}
+	
+	private int checkBubbleChain(int actualPos, int adjCounter) {
+		
+		/*//	Check for adjacent bubbles and clear bubbles if they form a chain greater than 2
+		if (!(actualPos + 9 > numBubbles - 1)) {
+			if (bubbles[actualPos + 9].type == bubbles[numBubbles - 1].type)
+				adjCounter++;
+		}
+		
+		if (!(actualPos + 10 > numBubbles - 1)) {
+			if (bubbles[actualPos + 10].type == bubbles[numBubbles - 1].type)
+				adjCounter++;
+		}
+		
+		if (!(actualPos + 1 > numBubbles - 1)) {
+			if (bubbles[actualPos + 1].type == bubbles[numBubbles - 1].type)
+				adjCounter++;
+		}
+		
+		if (!(actualPos - 1 > numBubbles - 1)) {
+			if (bubbles[actualPos - 1].type == bubbles[numBubbles - 1].type)
+				adjCounter++;
+		}*/
+		
+		return adjCounter;
 	}
 }

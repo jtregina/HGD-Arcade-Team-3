@@ -4,16 +4,26 @@ import java.awt.Image;
 
 public class Bubble {
 
-	Image type;
-	int xPos;
-	int yPos;
-	int [][] coll = new int[58][2];
+	private Image iType;
+	private int type;
+	private int xPos;
+	private int yPos;
+	private int [][] coll = new int[58][2];
+	private BubbleChain chain;
 	
 	public void setImage(Image i) {
-		type = i;
+		iType = i;
 	}
 	
 	public Image getImage() {
+		return iType;
+	}
+	
+	public void setType(int t) {
+		type = t;
+	}
+	
+	public int getType() {
 		return type;
 	}
 	
@@ -41,5 +51,13 @@ public class Bubble {
 	
 	public int [][] getColl() {
 		return coll;
+	}
+	
+	public BubbleChain getBubbleChain() {
+		return chain;
+	}
+	
+	public void setBubbleChain(BubbleChain b) {
+		chain = b;
 	}
 }
