@@ -8,6 +8,7 @@ public class Bubble {
 	private int type;
 	private int xPos;
 	private int yPos;
+	private int actualPos = -5;
 	private int [][] coll = new int[58][2];
 	private BubbleChain chain;
 	
@@ -40,6 +41,14 @@ public class Bubble {
 
 	public int getYPos() {
 		return yPos;
+	}
+	
+	public int getActualPos() {
+		return actualPos;
+	}
+	
+	public void setActualPos(int p) {
+		actualPos = p;
 	}
 	
 	private void setColl() {
