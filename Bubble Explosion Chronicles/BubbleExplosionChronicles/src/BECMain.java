@@ -31,7 +31,7 @@ public class BECMain extends Game {
 	private boolean tutorial;
 	private int levelCounter = 1;
 	private String levelName;
-	private int [] times = { 80, 30, 120, 120, 180, 180, 240, 240, 360, 360 }; 
+	private int [] times = { 80, 30, 120, 120, 180, 180, 240, 240, 360, 360, 360 }; 
 	
 	private Timer timer = new Timer();
 	private int time;
@@ -63,7 +63,7 @@ public class BECMain extends Game {
 		
 		storySegment = false;
 		tutorial = true;
-
+		
 		generateLevel(level, level.length);
 		
 		setTimer();
@@ -401,8 +401,22 @@ public class BECMain extends Game {
 		String s;
 		
 		if (storySegment == true) {
-			if (levelCounter == 11) {
+			if (levelCounter == 12) {
+				try {
+					bg = ImageIO.read(new File("src/images/backgrounds/Epilogue.png"));
+				} catch (IOException e) {
+					System.out.println("Background Image Error");
+				}
 				
+				// Draw the background
+				graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
+				
+				graphics.setColor(Color.WHITE);
+				graphics.fillRoundRect(150, 705, 300, 50, 45, 60);
+				graphics.setColor(Color.BLACK);
+				graphics.setFont(new Font("Helvetica", Font.PLAIN, 30));
+				
+				graphics.drawString("Thanks for playing.", 175, 740);
 			} else {
 				s = "src/images/storysegments/level" + (levelCounter - 1) + ".png";
 				
@@ -428,6 +442,12 @@ public class BECMain extends Game {
 				}
 			}
 		} else {
+			if (levelCounter == 1) {
+				s = "src/images/backgrounds/level" + levelCounter + ".png";
+			} else {
+				s = "src/images/backgrounds/level" + (levelCounter - 1) + ".png";
+			}
+
 			
 			// Draw the background
 			graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
@@ -438,8 +458,6 @@ public class BECMain extends Game {
 			graphics.setColor(Color.BLACK);
 			graphics.setFont(new Font("Helvetica", Font.PLAIN, 30)); 
 			graphics.drawString("Timer: " + time, 445, 45);
-			
-			s = "src/images/backgrounds/level" + levelCounter + ".png";
 			
 			//	Draw loss line
 			graphics.setColor(Color.WHITE);
@@ -703,13 +721,15 @@ public class BECMain extends Game {
 					storySegment = true;
 					
 					levelCounter++;
-					levelName = "level" + levelCounter;
-					
-					int [] level = p.getLevel(levelName);
-					
-					generateLevel(level, level.length);
-					
-					reset();
+					if (levelCounter != 12) {
+						levelName = "level" + levelCounter;
+						
+						int [] level = p.getLevel(levelName);
+						
+						generateLevel(level, level.length);
+						
+						reset();
+					}
 				}
 			}
 			
