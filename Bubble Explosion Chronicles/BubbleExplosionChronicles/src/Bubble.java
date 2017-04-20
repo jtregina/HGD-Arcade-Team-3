@@ -9,7 +9,7 @@ public class Bubble {
 	private int xPos;
 	private int yPos;
 	private int actualPos = -5;
-	private int [][] coll = new int[58][2];
+	private int [][] coll = new int[237][2];
 	private BubbleChain chain;
 	
 	public void setImage(Image i) {
@@ -52,9 +52,24 @@ public class Bubble {
 	}
 	
 	private void setColl() {
-		for (int i = 0; i < 58; i++) {
-			coll[i][0] = xPos + 5 + i;
+		for (int i = 0; i < 60; i++) {
+			coll[i][0] = xPos + 4 + i;
 			coll[i][1] = yPos + 5;
+		}
+		
+		for (int i = 60; i < 117; i++) {
+			coll[i][0] = xPos + 5;
+			coll[i][1] = yPos + 5 + i - 60;
+		}
+		
+		for (int i = 120; i < 177; i++) {
+			coll[i][0] = xPos + 63;
+			coll[i][1] = yPos + 5 + i - 120;
+		}
+		
+		for (int i = 177; i < 237; i++) {
+			coll[i][0] = xPos + 4 + i - 177;
+			coll[i][1] = yPos + 62;
 		}
 	}
 	

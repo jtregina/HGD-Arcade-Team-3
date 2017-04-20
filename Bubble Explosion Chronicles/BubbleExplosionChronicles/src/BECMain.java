@@ -28,8 +28,10 @@ public class BECMain extends Game {
 	private int nDX, nDY, nX, nY, aX, aY;
 	private boolean fire;
 	private boolean storySegment;
+	private boolean tutorial;
 	private int levelCounter = 1;
 	private String levelName;
+	private int [] times = { 80, 30, 120, 120, 180, 180, 240, 240, 360, 360 }; 
 	
 	private Timer timer = new Timer();
 	private int time;
@@ -59,7 +61,8 @@ public class BECMain extends Game {
 		
 		int [] level = p.getLevel(levelName);
 		
-		storySegment = true;
+		storySegment = false;
+		tutorial = true;
 
 		generateLevel(level, level.length);
 		
@@ -72,7 +75,7 @@ public class BECMain extends Game {
 		timer.cancel();
 		
 		timer = new Timer();
-		time = levelCounter * 60;
+		time = times[levelCounter - 1];
 		
 		//	Set timer			
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -96,6 +99,8 @@ public class BECMain extends Game {
 		nY = nDY;
 		aX = nDX;
 		aY = nDY + 175;
+		ang = 90;
+		arrowAng = 90;
 
 		randNuke();
 
@@ -266,9 +271,9 @@ public class BECMain extends Game {
 				}
 				break;
 			case 6:
-				bubbles[i].setType(6);
+				bubbles[i].setType(2);
 				try {
-					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/ClearBubble.png")));
+					bubbles[i].setImage(ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
 				} catch (IOException e) {
 					System.out.println("Bubble Image Error");
 				}
@@ -396,30 +401,32 @@ public class BECMain extends Game {
 		String s;
 		
 		if (storySegment == true) {
-			
-			s = "src/images/storysegments/level" + levelCounter + ".png";
-			
-			try {
-				bg = ImageIO.read(new File(s));
-			} catch (IOException e) {
-				System.out.println("Background Image Error");
-			}
-			
-			// Draw the background
-			graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
-			
-			graphics.setColor(Color.WHITE);
-			graphics.fillRoundRect(150, 705, 300, 50, 45, 60);
-			graphics.setColor(Color.BLACK);
-			graphics.setFont(new Font("Helvetica", Font.PLAIN, 30));
-			
-			graphics.drawString("Press W to continue.", 165, 740);
+			if (levelCounter == 11) {
+				
+			} else {
+				s = "src/images/storysegments/level" + (levelCounter - 1) + ".png";
+				
+				try {
+					bg = ImageIO.read(new File(s));
+				} catch (IOException e) {
+					System.out.println("Background Image Error");
+				}
+				
+				// Draw the background
+				graphics.drawImage(bg, 0, 0, WIDTH, HEIGHT, null);
+				
+				graphics.setColor(Color.WHITE);
+				graphics.fillRoundRect(150, 705, 300, 50, 45, 60);
+				graphics.setColor(Color.BLACK);
+				graphics.setFont(new Font("Helvetica", Font.PLAIN, 30));
+				
+				graphics.drawString("Press S to continue.", 165, 740);
 
-			if (input.pressed(Button.U)) {	
-				setTimer();
-				storySegment = false;
+				if (input.pressed(Button.D)) {	
+					setTimer();
+					storySegment = false;
+				}
 			}
-			
 		} else {
 			
 			// Draw the background
@@ -450,16 +457,46 @@ public class BECMain extends Game {
 			
 			if (levelCounter == 1) {
 				try {
-					nextNuke.setType(6);
-					nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukePlain.png")), ImageIO.read(new File("src/images/bubbles/ClearBubble.png")));
+					nextNuke.setType(2);
+					nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeLightning.png")), ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
 				} catch (IOException e) {
 					System.out.println("Nuke Image Error");
 				}
 				graphics.drawImage(nextNuke.getImage(), 15, 10, 70, 96, null);
+				
+				if (tutorial) {
+					graphics.setColor(Color.WHITE);
+					graphics.fillRoundRect(0, 305, 600, 100, 45, 60);
+					graphics.setColor(Color.BLACK);
+					graphics.setFont(new Font("Helvetica", Font.PLAIN, 30));
+					
+					if (time > 70) {
+						graphics.drawString("Press A to move left, D to move right.", 55, 350);
+						graphics.drawString("Press 2 to aim left, 3 to aim right.", 75, 385);
+					} else if (time > 60) {
+						graphics.drawString("Press 1 to fire a nuke. Nukes turn into", 50, 350);
+						graphics.drawString("bubbles when they collide with a bubble.", 35, 385);
+					} else if (time > 50) {
+						graphics.drawString("Clear bubbles by forming chains of", 60, 350);
+						graphics.drawString("bubbles greater than 2.", 145, 385);
+					} else if (time > 40) {
+						graphics.drawString("If any bubble passes the white line", 65, 350);
+						graphics.drawString("you will have to start over.", 125, 385);
+					} else if (time > 30) {
+						graphics.drawString("The next nuke to be fired is displayed in the", 15, 350);
+						graphics.drawString("top left. Only one nuke can be fired at a time.", 10, 385);
+					} else if (time > 20) {
+						graphics.drawString("Complete the level before the time runs out!", 15, 350);
+						graphics.drawString("If the time runs out you will have to start over.", 5, 385);
+					} else if (time > 10){
+						graphics.drawString("The tutorial is over. When this disappears,", 20, 350);
+						graphics.drawString("quickly fire a bubble to beat this level.", 50, 385);
+					} else if (time == 10) {
+						tutorial = false;
+					}
+				}
 			} else if (levelCounter == 2) {
 				try {
-					if (time != 0)
-						time -= 1;
 					nextNuke.setType(2);
 					nextNuke.setImage(ImageIO.read(new File("src/images/projectiles/nukeLightning.png")), ImageIO.read(new File("src/images/bubbles/bubbleLightning.png")));
 				} catch (IOException e) {
@@ -489,8 +526,14 @@ public class BECMain extends Game {
 				graphics.drawImage(bubbles[i - 1].getImage(), bubbles[i - 1].getXPos(), bubbles[i-1].getYPos(), 70, 73, null);
 			}
 
+			//for (int i = 0; i < numBubbles; i++) {
+			//	for (int j = 0; j < bubbles[i].getColl().length; j++) {
+			//		graphics.drawOval(bubbles[i].getColl()[j][0], bubbles[i].getColl()[j][1], 1, 1);
+			//	}
+			//}
+			
 			// Control main character
-			if (remainingBubbles != 0) {
+			if (remainingBubbles != 0 && time != 0) {
 				if (nDX > 14) if (input.pressed(Button.L)) {
 					nDX -= 8;
 					aX -= 8;
@@ -501,7 +544,7 @@ public class BECMain extends Game {
 				}
 			}
 
-			if (remainingBubbles != 0) {
+			if (remainingBubbles != 0 && !tutorial) {
 				if (input.pressed(Button.A)) {	// Fire nuke
 					if (fire == false) {
 						nuke = nextNuke;
@@ -509,7 +552,7 @@ public class BECMain extends Game {
 						nX = nDX;
 						fire = true;
 					}
-				}	
+				}
 			}
 			
 			// Control direction to fire
@@ -532,54 +575,96 @@ public class BECMain extends Game {
 			// Nuke has been fired
 			if (fire) {
 				graphics.drawImage(nuke.getImage(), nX, nY, 70, 96, null);
+				
+				//for (int i = 0; i < 70; i++) {
+				//	graphics.drawOval(nX + 33, nY + i + 40, 1, 1);
+				//	graphics.drawOval(nX + 56, nY + i + 20, 1, 1);
+				//	graphics.drawOval(nX + 6, nY + i + 20, 1, 1);
+				//}
 
 				// Check if nuke collides with bubble
 				for (int i = 0; i < bubbles.length; i++) {
 					if (bubbles[i].getType() != 0) {
 						for (int j = 0; j < bubbles[i].getColl().length; j++) {
 		
-							for (int k = 0; k < 10; k++) {
-								if (((nX + 35) == bubbles[i].getColl()[j][0]) && ((nY + k + 96) == bubbles[i].getColl()[j][1])) {
-									fire = false;
-									
-									numBubbles++;
-									Bubble [] n = new Bubble[numBubbles];
-									
-									for (int l = 0; l < bubbles.length; l++) {
-										n[l] = bubbles[l];
-									}
-									
-									bubbles = n;
-									bubbles[numBubbles - 1] = new Bubble();
-									bubbles[numBubbles - 1].setType(nuke.getType());
-																
-									bubbles[numBubbles - 1].setImage(nuke.getBubImage());
-											
-									remainingBubbles++;
-									
-									int actualPos;
-									
-									if ((bubbles[i].getColl()[j][0] - (bubbles[i].getXPos() - 5)) < 29) {
-										bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
-										if (i >= originalNumBubbles) {
-											actualPos = bubbles[i].getActualPos() + 9;
-										} else {
-											actualPos = i + 9;
+							for (int k = 0; k < 60; k++) {
+								if (j <= 60) {
+									if ((((nX + 33) == bubbles[i].getColl()[j][0]) && ((nY + k + 40) == bubbles[i].getColl()[j][1]))) {
+										fire = false;
+										
+										numBubbles++;
+										Bubble [] n = new Bubble[numBubbles];
+										
+										for (int l = 0; l < bubbles.length; l++) {
+											n[l] = bubbles[l];
 										}
-									} else {
-										bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() + 30, bubbles[i].getYPos() - 52);
-										if (i >= originalNumBubbles) {
-											actualPos = bubbles[i].getActualPos() + 10;
-										} else {
-											actualPos = i + 10;
-										}
-									}
+										
+										bubbles = n;
+										bubbles[numBubbles - 1] = new Bubble();
+										bubbles[numBubbles - 1].setType(nuke.getType());
 																	
-									bubbles[numBubbles - 1].setActualPos(actualPos);
-									
-									clearBubbles(bubbles[numBubbles - 1]);
-									
-									nY = nDY;
+										bubbles[numBubbles - 1].setImage(nuke.getBubImage());
+												
+										remainingBubbles++;
+										
+										int actualPos = 0;
+										
+										if (j <= 30) {
+											bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 30, bubbles[i].getYPos() - 52);
+											if (i >= originalNumBubbles) {
+												actualPos = bubbles[i].getActualPos() + 9;
+											} else {
+												actualPos = i + 9;
+											}
+										} else if (j <= 60) {
+											bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() + 30, bubbles[i].getYPos() - 52);
+											if (i >= originalNumBubbles) {
+												actualPos = bubbles[i].getActualPos() + 10;
+											} else {
+												actualPos = i + 10;
+											}
+										}
+																		
+										bubbles[numBubbles - 1].setActualPos(actualPos);
+										
+										clearBubbles(bubbles[numBubbles - 1]);
+										
+										nY = nDY;
+									}
+								} else if (j <= 117) {
+									if ((((nX + 6) == bubbles[i].getColl()[j][0]) && ((nY + k + 20) == bubbles[i].getColl()[j][1])) || (((nX + 56) == bubbles[i].getColl()[j][0]) && ((nY + k + 20) == bubbles[i].getColl()[j][1]))) {
+										fire = false;
+										
+										numBubbles++;
+										Bubble [] n = new Bubble[numBubbles];
+										
+										for (int l = 0; l < bubbles.length; l++) {
+											n[l] = bubbles[l];
+										}
+										
+										bubbles = n;
+										bubbles[numBubbles - 1] = new Bubble();
+										bubbles[numBubbles - 1].setType(nuke.getType());
+																	
+										bubbles[numBubbles - 1].setImage(nuke.getBubImage());
+												
+										remainingBubbles++;
+										
+										int actualPos = 0;
+										
+										bubbles[numBubbles - 1].setPos(bubbles[i].getXPos() - 60, bubbles[i].getYPos());
+										if (i >= originalNumBubbles) {
+											actualPos = bubbles[i].getActualPos() - 1;
+										} else {
+											actualPos = i - 1;
+										}
+																		
+										bubbles[numBubbles - 1].setActualPos(actualPos);
+										
+										clearBubbles(bubbles[numBubbles - 1]);
+										
+										nY = nDY;
+									}
 								}
 							}
 						}
@@ -640,13 +725,15 @@ public class BECMain extends Game {
 					graphics.drawString("Press W to continue.", 165, 385);
 				} else {
 					graphics.drawString("You lose!", 245, 350);
-					graphics.drawString("Press W to restart.", 165, 385);
+					graphics.drawString("Press W to restart.", 175, 385);
 				}
 				
 				if (input.pressed(Button.U)) {
 					if (levelCounter == 2) {
 						levelCounter++;
 						storySegment = true;
+					} else {
+						setTimer();
 					}
 					
 					levelName = "level" + levelCounter;
@@ -959,6 +1046,156 @@ public class BECMain extends Game {
 									newChain.addBubble(bottomRightChain.getBubble(j));
 								}
 								System.out.println("Added right bubble with chain.");
+							}	
+						} else {
+							System.out.println("Bubble is already in chain.");
+						}
+					} else {
+						System.out.println("Bubble exists but not the same type.");
+					}
+				}
+			}
+		}
+		
+		// Check top left
+		if (actualPos <= 9) {
+			System.out.println("Case 1: Don't check bottom left because actualPos <= 9");
+		} else if (actualPos % 19 == 0) {
+			System.out.println("Case 2: Don't check bottom left because actualPos == 0 or divisible by 19");
+		} else {
+			boolean exists = false;
+			int i;
+			
+			for (i = numBubbles - 2; i >= originalNumBubbles; i--) {	// Start at numBubbles - 2 cause I just added myself to the end
+				if (bubbles[i].getActualPos() == actualPos + 9) {
+					exists = true;
+					break;
+				}
+			}
+			
+			boolean inChain = false;
+			
+			if (exists) {
+				if (bubbles[i].getType() == b.getType()){
+					for (int j = 0; j < newChain.getLength(); j++) {
+						if (newChain.getBubble(j).equals(bubbles[i])) {
+							inChain = true;
+						}
+					}
+					
+					if (!inChain) {
+						if (bubbles[i].getBubbleChain() == null) {
+							newChain.addBubble(bubbles[i]);
+							System.out.println("Added bottom left bubble with no chain.");
+						} else {
+							BubbleChain bottomLeftChain = bubbles[i].getBubbleChain();
+							
+							for (int j = 0; j < bottomLeftChain.getLength(); j++) {
+								newChain.addBubble(bottomLeftChain.getBubble(j));
+							}
+							System.out.println("Added bottom left bubble with chain.");
+						}
+					} else {
+						System.out.println("Bubble is already in chain.");
+					}
+				} else {
+					System.out.println("Bubble exists but not the same type.");
+				}
+			} else {
+				if (!(actualPos + 9 >= originalNumBubbles)) {
+					if (bubbles[actualPos + 9].getType() == b.getType()){
+						for (int j = 0; j < newChain.getLength(); j++) {
+							if (newChain.getBubble(j).equals(bubbles[actualPos + 9])) {
+								inChain = true;
+							}
+						}					
+						
+						if (!inChain) {
+							if (bubbles[actualPos + 9].getBubbleChain() == null) {
+								newChain.addBubble(bubbles[actualPos + 9]);
+								System.out.println("Added bottom left bubble with no chain.");
+							} else {
+								BubbleChain bottomLeftChain = bubbles[actualPos + 9].getBubbleChain();
+								
+								for (int j = 0; j < bottomLeftChain.getLength(); j++) {
+									newChain.addBubble(bottomLeftChain.getBubble(j));
+								}
+								System.out.println("Added bottom left bubble with chain.");
+							}
+						} else {
+							System.out.println("Bubble is already in chain.");
+						}
+					} else {
+						System.out.println("Bubble exists but not the same type.");
+					}
+				}
+			}
+		}
+			
+		// Check top right
+		if (actualPos <= 9) {
+			System.out.println("Case 1: Don't check bottom right because i <= 9");
+		} else if ((actualPos + 10) % 19 == 0) {
+			System.out.println("Case 2: Don't check bottom right because i - 9 is divisible by 19");
+		} else {
+			boolean exists = false;
+			int i;
+			
+			for (i = numBubbles - 2; i >= originalNumBubbles; i--) {	// Start at numBubbles - 2 cause I just added myself to the end
+				if (bubbles[i].getActualPos() == actualPos + 10) {
+					exists = true;
+					break;
+				}
+			}
+			
+			boolean inChain = false;
+			
+			if (exists) {
+				if (bubbles[i].getType() == b.getType()){
+					for (int j = 0; j < newChain.getLength(); j++) {
+						if (newChain.getBubble(j).equals(bubbles[i])) {
+							inChain = true;
+						}
+					}
+					
+					if (!inChain) {
+						if (bubbles[i].getBubbleChain() == null) {
+							newChain.addBubble(bubbles[i]);
+							System.out.println("Added bottom right bubble with no chain.");
+						} else {
+							BubbleChain bottomRightChain = bubbles[i].getBubbleChain();
+							
+							for (int j = 0; j < bottomRightChain.getLength(); j++) {
+								newChain.addBubble(bottomRightChain.getBubble(j));
+							}
+							System.out.println("Added bottom right bubble with chain.");
+						}
+					} else {
+						System.out.println("Bubble is already in chain.");
+					}
+				} else {
+					System.out.println("Bubble exists but not the same type.");
+				}
+			} else {
+				if (!(actualPos + 10 >= originalNumBubbles)) {
+					if (bubbles[actualPos + 10].getType() == b.getType()){
+						for (int j = 0; j < newChain.getLength(); j++) {
+							if (newChain.getBubble(j).equals(bubbles[actualPos + 10])) {
+								inChain = true;
+							}
+						}
+						
+						if (!inChain) {
+							if (bubbles[actualPos + 10].getBubbleChain() == null) {
+								newChain.addBubble(bubbles[actualPos + 10]);
+								System.out.println("Added bottom right bubble with no chain.");
+							} else {
+								BubbleChain bottomRightChain = bubbles[actualPos + 10].getBubbleChain();
+								
+								for (int j = 0; j < bottomRightChain.getLength(); j++) {
+									newChain.addBubble(bottomRightChain.getBubble(j));
+								}
+								System.out.println("Added bottom right bubble with chain.");
 							}	
 						} else {
 							System.out.println("Bubble is already in chain.");
